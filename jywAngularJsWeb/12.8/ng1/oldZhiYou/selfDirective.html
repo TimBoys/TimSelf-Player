@@ -1,0 +1,137 @@
+angularJS的自定义指令
+Index.html
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="angular.js"></script>
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+        }
+
+        nav {
+            height: 50px;
+            background-color: red;
+        }
+    </style>
+</head>
+<body ng-controller="myCtrl">
+<input type="text" name="name" ng-model="name" />
+<input type="text" name="email" ng-model="email" />
+<p>你输入的name: <strong>{{name}}</strong>,email是: <strong>{{email}}</strong></p>
+<div ng-include=" 'test.html' "></div>
+<!--
+   使用自定义指令和transclude可以把多个页面共同模板放在指令中来重复使用，比如页面的导航栏、侧栏等页面内容。
+-->
+<!--定义的指令假如是驼峰命名，则使用分隔符'-'连接，并且全部小写-->
+<!--E：用作元素-->
+<roy-date myname='{{name}}' myemail='{{email}}' myattr='content'  myfunc='afunc()'>
+    <p>name==={{name}}</p>
+    <p>email==={{email}}</p>
+    <ul>
+        <li>HTML5</li>
+        <li>CSS3</li>
+    </ul>
+</roy-date>
+<!--A：用在属性-->
+<div roy-date>
+    <ul>
+        <li>JavaScript</li>
+        <li>Angular</li>
+    </ul>
+</div>
+<!--M：用在注释-->
+<!--directive:roy-date -->
+<!--C:用在class属性-->
+<div class="roy-date"></div>
+</body>
+<script type="text/javascript">
+    (function() {
+        var app = angular.module('myApp', [])
+        app.controller('myCtrl', function($scope) {
+            $scope.name = 'roy'
+            $scope.email = 'xxx@163.com'
+
+            $scope.content = '这是一个内容'
+
+            $scope.afunc = function(){
+
+                alert('这是一个测试')
+            }
+        })
+        //自定义指令
+        app.directive('royDate', function() {
+            return {
+                /*restrict
+                 * 限制指令使用方式：
+                 * A:仅限属性.应在元素内部，当做属性添加。
+                 * E：仅限标签。把指令直接当做标签使用.
+                 * C:仅限class属性值。把指令作为class属性值。
+                 * M：仅限注释
+                 *
+                 * 可以组合出现：'ACEM'
+                 */
+                restrict: 'AEMC',
+                /*
+                 * 是否以替换的方式插入内容
+                 */
+                //replace:true,
+                //嵌套。当指令以标签的方式使用时，指定transclude为true可以使用标签支持嵌套内容，而且模板中还可以通过ng-transclude执行控制嵌套内容出现的位置
+                transclude: true,
+                //模板,即自定义指令被使用的时候,可以将模板的内容插入到指令所在位置。
+                template: "<nav>获取name==={{getname}}，获取emai
+                l==={{getemail}},获取attr:{{getattr}}</nav><div>{{mydate | date:'yyyy-MM-dd HH:mm:ss'}}</div><section ng-transclude></section>",
+            //可以把模板定义在一个html文件中，通过templateUrl指定模板路径
+            //templateUrl:"模板.html"
+            //使用controller来设定该指令执行的操作以及作用域的数据
+            controller: ['$interval', '$scope', function($interval, $scope) {
+                $scope.mydate = new Date()
+                $interval(function() {
+                    $scope.mydate = new Date()
+                }, 1000)
+            }],
+                //scope可以连接到父作用域，按照一定的规则访问父作用域中的变量
+                /*
+                 * 绑定策略：
+                 * @：传递字符串作为属性值。str:'@string'
+                 * =:使用父作用域中一个属性，该属性的值是一个变量，绑定数据到指令的属性中。name:'=username'
+                 * &:使用父作用域中一个函数，可以在指令中调用。getName:'&getName'
+                 */
+                scope: {
+                    getname:'@myname',
+                    getemail:'@myemail',
+                    getattr:'=myattr',
+                    getfunc:'&myfunc'
+            },
+            /*
+             * 在自定义指令中如果要操作模板中的标签元素需要使用这个方法
+             * a)：scope表示controller下面的数据，其实就是controller中的$scope。
+             * b)：element表示当前的DOM元素。
+             * c)：attr表示这个DOM元素上的自定义属性。
+             */
+            link: function(scope, ele, attrs) {
+                ele.on('click', function() {
+                    var year = scope.mydate.getFullYear()
+                    var month = scope.mydate.getMonth()
+                    var day = scope.mydate.getDate()
+                    var hour = scope.mydate.getHours()
+                    var minutes = scope.mydate.getMinutes()
+                    var seconds = scope.mydate.getSeconds()
+                    var str = year + '年' + month + '月' + day + '日' + hour + ":" + minutes　 + 　":"　 + 　seconds
+                    alert('当前时间是:' + 　str)
+
+                    scope.getfunc()
+                })
+            }
+        }
+        })
+    })()
+</script>
+</html>
+Test.html
+<section>
+    <p>这是一个测试，使用ng-include指令引入的模板，能否使用name:{{name}} 和 email:{{email}}</p>
+</section>

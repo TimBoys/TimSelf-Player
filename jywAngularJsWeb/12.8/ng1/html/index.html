@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body ng-app="myApp" >
+		<div ng-controller="myCtrl">
+			<input type="text" ng-model="pp">
+			<p>{{pp  | limitTo:2 | currency:$}}</p>
+			<h2 class="{{hhh}}" ng-click="oneClick('oneclick')">{{hhh}}</h2>
+			<a-dir parentToChild="{{hhh}}" getting="{{hhh}}" test="test()" c-dir >
+				<b-dir></b-dir>
+			</a-dir>
+			<b-dir ></b-dir>
+		</div>
+	</body>
+	<script src="../lib/angular.js"></script>
+	<script type="text/javascript">
+		var myModel = angular.module("myApp",[]);
+		myModel.controller("myCtrl",["$scope",function($scope){
+			$scope.hhh = "this is h2";
+            $scope.oneClick = function (val) {
+                console.dir(val);
+            }
+            $scope.aaaClick = function (val) {
+                console.dir("aaaa");
+            }
+            $scope.test = function (val) {
+                alert(val);
+            }
+		}])
+		
+		myModel.directive("aDir",function () {
+			return{
+			    replace:true,
+                transclude:true,
+			    scope:{
+					getting:'@getting',
+					test:'&test'
+				},
+			    templateUrl:"aDir.html",
+				link:function (scope,elem,attr) {
+                    scope.oo = scope.getting;
+                    scope.onClick = function (val) {
+                        scope.test();
+                    }
+                },
+				controller:function ($scope) {
+                    this.getVall = function () {
+						//alert("getVall")
+                    }
+                }
+			}
+        })
+        myModel.directive("bDir",function () {
+            return{
+                templateUrl:"bDir.html",
+                link:function (scope,elem,attr) {
+                }
+            }
+        })
+        myModel.directive("cDir",function () {
+            return{
+                require:"^aDir",
+                link:function (scope,elem,attr,aCtrl) {
+                    aCtrl.getVall();
+                }
+            }
+        })
+		
+	</script>
+</html>

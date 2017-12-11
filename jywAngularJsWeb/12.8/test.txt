@@ -1,0 +1,15 @@
+指令之间的交互   内部controller
+指令和controller交互  多个controller  通过link的scope  ele  attr 参数  调用controller的方法  通过apply调用
+指令里面scope属性以及三种传值方法
+
+一个model绑定多个view(观察者模式)
+如何知道model发送变化（脏检查  $watch与$digest）
+如果model是深层嵌套的结构，如何知道某个属性是不是变了
+A和B两个方法互相watch对方的时候，如何避免“振荡”
+绑定过程如何支持表达式（$parser和$eval自制js编译器）
+http://www.html-js.com/article/1863
+
+$watch $digest
+
+www.ngnice.com/docs/api/ng/directive/a
+
